@@ -5,6 +5,9 @@ import store from './store'
 import MintUI from 'mint-ui'
 import 'mint-ui/lib/style.css'
 
+
+
+
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 Vue.use(ElementUI)
@@ -50,3 +53,23 @@ new Vue({
   store:store,
   render: h => h(App)
 }).$mount('#app')
+
+
+
+router.beforeEach(async (to,from,next)=>{
+  if(to !== "/login"){
+    let res = await axios.get("http://101.34.108.131:2333/web/account/validate")
+    console.log(res);
+    let user = localStorage.getItem("user")
+    let userId = localStorage.getItem("user_id")
+    if(res==="验证成功" && user){
+      store.commit("user/editUserStatus",userId)
+    }else{
+      store.commit("user/editUserStatus","")
+    }
+    // 都通过
+    next()
+  }else{
+    next()
+  }
+})

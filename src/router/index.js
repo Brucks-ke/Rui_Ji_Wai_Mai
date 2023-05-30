@@ -8,7 +8,7 @@ import city from "../views/city.vue"
 import chooseAddress from "../views/child/chooseAddress.vue"
 import remark from "../views/child/remark.vue"
 import ticket from "../views/child/ticket.vue"
-import addAddress from "../views/child/addAddress.vue" //添加地址
+import address from "../views/child/address.vue" //添加地址
 
 const originalPush = VueRouter.prototype.push
 VueRouter.prototype.push = function push(location) {
@@ -82,7 +82,7 @@ const routes = [
           {
             path:"addAddress",
             name:"添加地址",
-            component:addAddress
+            component:address
           },
         ]
       },

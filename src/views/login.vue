@@ -101,17 +101,19 @@ export default{
                     password: this.password,
                 }
             })
-            if(typeof resulit == "number"){
-                localStorage.setItem("user_id",resulit)
+            console.log(resulit);
+            localStorage.setItem("token",resulit.token)
+            if(typeof resulit.userId == "number"){
+                this.$store.commit("user/editUserStatus",resulit.userId)
                 // 添加获取获取账号详细信息
                 let result = await axios.post("/web/account/addDetails",{
                     username: this.username,
-                    userId: resulit,
+                    userId: resulit.userId,
                 })
                 console.log(result);
 
                 // 跳转
-                this.$router.push("/")
+                this.$router.back()
             }else if(resulit === "账号或密码错误"){
                 alert("账号或密码错误")
             }

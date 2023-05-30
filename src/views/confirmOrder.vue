@@ -184,10 +184,10 @@ export default {
 
 
     .mint-header-title{
-        font-size: .8rem;
+        font-size: 0.45rem !important;
         color: #fff;
         text-align: center;
-        font-weight: 700;
+        font-weight: 700 !important;
     }
     .content{
         .alink{
