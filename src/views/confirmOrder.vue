@@ -4,16 +4,19 @@
             <div @click="$router.back()" slot="left">
                 <mt-button icon="back"></mt-button>
             </div>
-            <div icon="more" class="more" slot="right">
+            <div icon="more" class="more" slot="right" v-if="!user1">
                 <router-link to="/login" class="white">登录</router-link>&nbsp; |
-                <router-link to="/reg" class="white">注册</router-link>
+                <router-link to="/login" class="white">注册</router-link>
+            </div>
+            <div icon="more" class="more" slot="right" v-else>
+                <router-link to="/login" class="white">{{user1}}</router-link>
             </div>
         </mt-header>
         <div class="content">
                 <div class="addressBox" @click="$router.push('/confirmOrder/chooseAddress')">
                     <div class="le">
                         <img src="../assets/position.png" alt="">
-                        请添加一个收货地址
+                        <span v-text="defaultAddress?`${defaultAddress.name} 先生 ${defaultAddress.sendAddress} ${defaultAddress.fullAddress}`:'请选择收货地址'"></span>
                     </div>
                     <div class="ri">
                         <img src="../assets/next-互动.png" alt="">
@@ -117,10 +120,14 @@ export default {
     data(){
         return {
             this_info:[],
-            shopInfo:[]
+            shopInfo:[],
+            user1:"",
+            defaultAddress:{},
+            isUpdating:false
         }
     },
-    created(){
+    async created(){
+        this.getDefaultAddress()
         if(localStorage.getItem('orde')){
             let result = JSON.parse(localStorage.getItem('orde'))
             console.log(result);
@@ -128,6 +135,18 @@ export default {
         };
         this.getShopInfo()
         console.log(this.$store.state.info);
+        this.user1 = localStorage.getItem("user")
+    },
+    updated(){
+        
+        // 封装成私有的，让他只更新一次
+        if (!this.isUpdating) {
+            this.isUpdating = true;
+            // 执行异步操作
+            this.getDefaultAddress().then(() => {
+                this.isUpdating = false;
+            });
+        }
     },
     // 过滤器
     filters:{
@@ -137,6 +156,14 @@ export default {
         formatNum(val){
             return "x" + val
         }
+    },
+    beforeRouteLeave(to, from, next) {
+        // 判断是否切换到子页面
+        if (to.name === 'chooseAddress') {
+        // 销毁父组件
+        this.$destroy();
+        }
+        next();
     },
     computed:{
         allPrice:{
@@ -159,6 +186,13 @@ export default {
         },
         down(){
 
+        },
+        async getDefaultAddress(){
+            if(this.$store.state.user.user){
+                let user = localStorage.getItem("user")
+                let res = await axios.get("/web/account/getAddress?username="+user)
+                this.defaultAddress = res.msg.filter(e=>e.default===true)[0]
+            }
         }
     }
 }

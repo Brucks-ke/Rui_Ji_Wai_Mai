@@ -103,8 +103,10 @@ export default{
             })
             console.log(resulit);
             localStorage.setItem("token",resulit.token)
+            localStorage.setItem("user",this.username)
             if(typeof resulit.userId == "number"){
                 this.$store.commit("user/editUserStatus",resulit.userId)
+                
                 // 添加获取获取账号详细信息
                 let result = await axios.post("/web/account/addDetails",{
                     username: this.username,

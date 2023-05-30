@@ -10,6 +10,25 @@
         </div>
     </mt-header>
 
+    <div class="contents">
+        <div class="item" v-for="(item,index) in AddressS" :key="index">
+            <div @click="changeDefault(item._id)">
+                <input type="radio" name="select" :checked="item.default" >
+            </div>
+            <div class="right">
+                <div class="top">
+                    <span>{{item.name}}</span>
+                    <span>{{item.gender === "man"?"先生":"女生"}}</span>&nbsp;&nbsp;
+                    <span>{{item.tel}}</span>
+                </div>  
+                <div class="bottom">
+                    <span :style="[{background:item.default?'rgb(76, 217, 100)':'red'},{border:'1px solid rgb(76, 217, 100)'}]">{{item.labels}}</span>
+                    <span>{{item.fullAddress}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="add" @click="add">
         <img src="../../assets/add.png" alt="">
         新增收货地址
@@ -22,8 +41,50 @@
 </template>
 
 <script>
+import axios from '../../utils/http'
 export default {
+    data(){
+        return{
+            allAddress:[],
+            AddressS:[],
+            aa:'1',
+            isAsyncOperationRunning:false,
+            isUpdating: false
+        }
+    },
+    created(){
+        this.getNowAddress()
+        console.log("创建期");
 
+    },
+    updated(){
+        // 封装成私有的，让他只更新一次
+        if (!this.isUpdating) {
+            this.isUpdating = true;
+            // 执行异步操作
+            this.getNowAddress().then(() => {
+                this.isUpdating = false;
+            });
+        }
+    },
+    destroyed(){
+        console.log("销毁期");
+        this.aa = "1"
+    },
+    beforeRouteLeave(to, from, next) {
+        // 判断是否切换到子页面
+        if (to.name === 'addAddress') {
+        // 销毁父组件
+        this.$destroy();
+        }
+    next();
+  },
+    watch:{
+        aa(newVal){
+            console.log(newVal);
+            this.getNowAddress()
+        }
+    },
     methods:{
         back(){
             this.$router.back()
@@ -36,6 +97,26 @@ export default {
             }else{
                 this.$messagebox.alert('请先登录后再操作').then(action=>{
                     this.$router.push('/login')
+                })
+            }
+        },
+        async getNowAddress(){
+            if(this.$store.state.user.user){
+                let user = localStorage.getItem("user")
+                let res = await axios.get("/web/account/getAddress?username="+user)
+                console.log(res);
+                this.allAddress = res.msg
+                this.AddressS = this.allAddress
+            }
+            
+        },
+        async changeDefault(id){
+            console.log(id);
+            if(this.$store.state.user.user){
+                let user = localStorage.getItem("user")
+                let result = await axios.post("/web/account/editDefalutAddress",{
+                    _id:id,
+                    username:user
                 })
             }
         }
@@ -74,6 +155,53 @@ export default {
             margin-right: 0.1rem;
         }
     }
+.contents{
+    width: 98%;
+    height: 1rem;
+    margin: 0 0.2rem;
+    margin-top: 1.1rem;
+
+    .item{
+        display: flex;
+        .right{
+            .top{
+                >span:first-child{
+                    margin-right: 0.2rem;
+                    font-size: .5rem;
+                    color: #333;
+                    margin-bottom: 0.1em;
+                    font-weight: 700;
+                }
+                >span:nth-child(2){
+                    font-size: 0.36rem;
+                    color: #333;
+                    font-weight: 400;                    
+                }
+                >span:nth-child(3){
+                    font-size: 0.36rem;
+                    color: #333;
+                    font-weight: 400;
+                }
+            }
+            .bottom{
+                >span:first-child{
+                    font-size: 0.36rem;
+                    margin-right: 0.2rem;
+                    margin-bottom: 0.1em;
+                    border:1px solid red;
+                    background-color: red;
+                    border-radius: 4px;
+                }
+                >span:nth-child(2){
+                    font-size: 0.36rem;
+                }
+            }
+
+    }
+    }
+
+
+  }
 }
 .mint-msgbox,.mint-msgbox-wrapper{ z-index:7001 !important }
 .v-modal{ z-index:7000 !important }
