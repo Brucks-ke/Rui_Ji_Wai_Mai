@@ -11,7 +11,7 @@ Vue.use(Vuex)
 
 
 
-import createPersistedState from 'vuex-persistedstate';
+
 
 const store = new Vuex.Store({
   modules: {
@@ -19,7 +19,7 @@ const store = new Vuex.Store({
     order,
     user
   },
-  plugins: [createPersistedState()],
+
 })
 
 export default store
