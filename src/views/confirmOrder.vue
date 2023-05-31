@@ -16,7 +16,7 @@
                 <div class="addressBox" @click="$router.push('/confirmOrder/chooseAddress')">
                     <div class="le">
                         <img src="../assets/position.png" alt="">
-                        <span v-text="defaultAddress?`${defaultAddress.name} 先生 ${defaultAddress.sendAddress} ${defaultAddress.fullAddress}`:'请选择收货地址'"></span>
+                        <span v-text="flags?`${now.name}先生 ${now.sendAddress} ${now.fullAddress}`:''"></span>
                     </div>
                     <div class="ri">
                         <img src="../assets/next-互动.png" alt="">
@@ -103,7 +103,7 @@
             <div>待支付{{allPrice|formatCash}}</div>
             </div>
         </div>
-        <div class="onsubmit"  @click='down'>
+        <div class="onsubmit"  @click='buy'>
             确认下单
         </div>
         </footer>
@@ -123,7 +123,9 @@ export default {
             shopInfo:[],
             user1:"",
             defaultAddress:{},
-            isUpdating:false
+            isUpdating:false,
+            flags:null,
+            now:{}
         }
     },
     async created(){
@@ -136,6 +138,7 @@ export default {
         this.getShopInfo()
         console.log(this.$store.state.info);
         this.user1 = localStorage.getItem("user")
+        
     },
     updated(){
         
@@ -184,15 +187,38 @@ export default {
         })
         this.shopInfo = res
         },
-        down(){
-
-        },
         async getDefaultAddress(){
+            // 1.1先看是否是登录状态
             if(this.$store.state.user.user){
+                // 1.2 拿取用户名
                 let user = localStorage.getItem("user")
                 let res = await axios.get("/web/account/getAddress?username="+user)
+                // 1.3拿取到所有的数据  将那一个默认的值挑选出来 给值
                 this.defaultAddress = res.msg.filter(e=>e.default===true)[0]
+                // 1.4拿取现在选择到的值 
+                this.now = this.$store.state.user.selectAddress
+                // 1.5 判断现在是选择的值是否有，有就显示现在选择的值
+                // 1.6 没有就显示为空
+                this.flags = this.$store.state.user.selectAddress.username
             }
+            // 2.如果用户没有登录就全部是空值，空字符串，空对象
+        },
+        async buy(){
+            let obj = {
+                shop:this.shopInfo,
+                food:this.$store.state.info.selectedData,
+                address:this.$store.state.user.selectAddress,
+                remark:this.$store.state.order.remark,
+                status:"待支付",
+                createTime:new Date(),
+                user:localStorage.getItem("user")
+            }
+
+
+            let res = await axios.post("/web/account/saveOrder",obj)
+            console.log(res);
+            this.$store.commit("order/editThisOrder",res)
+            this.$router.push("/confirmOrder/payment")
         }
     }
 }
@@ -200,7 +226,7 @@ export default {
 
 
 <style lang="scss" >
-.mint-msgbox,.mint-msgbox-wrapper{ z-index:7001 !important }
+.mint-msgbox,.mint-msgbox-wrapper{ z-index:99999999 !important }
 .v-modal{ z-index:7000 !important }
 .confirm{
     padding-top: 0.8rem;

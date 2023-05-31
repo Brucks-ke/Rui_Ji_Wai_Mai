@@ -1,12 +1,15 @@
 <template>
 <div class="chooseAddress">
     <mt-header :title="'选择地址'" fixed :style="{fontWeight:700}">
-        <div @click="back" slot="left">
-            <mt-button icon="back" ></mt-button>
+        <div @click="$router.back()" slot="left">
+            <mt-button icon="back"></mt-button>
         </div>
-        <div icon="more" class="more" slot="right">
+        <div icon="more" class="more" slot="right" v-if="!user1">
             <router-link to="/login" class="white">登录</router-link>&nbsp; |
-            <router-link to="/reg" class="white">注册</router-link>
+            <router-link to="/login" class="white">注册</router-link>
+        </div>
+        <div icon="more" class="more" slot="right" v-else>
+            <router-link to="/login" class="white">{{user1}}</router-link>
         </div>
     </mt-header>
 
@@ -15,7 +18,7 @@
             <div @click="changeDefault(item._id)">
                 <input type="radio" name="select" :checked="item.default" >
             </div>
-            <div class="right">
+            <div class="right" @click="xuanzhong(item)">
                 <div class="top">
                     <span>{{item.name}}</span>
                     <span>{{item.gender === "man"?"先生":"女生"}}</span>&nbsp;&nbsp;
@@ -49,13 +52,14 @@ export default {
             AddressS:[],
             aa:'1',
             isAsyncOperationRunning:false,
-            isUpdating: false
+            isUpdating: false,
+            user1:""
         }
     },
     created(){
+        // 创建的时候先获取
         this.getNowAddress()
-        console.log("创建期");
-
+        this.user1 = localStorage.getItem("user")
     },
     updated(){
         // 封装成私有的，让他只更新一次
@@ -68,7 +72,6 @@ export default {
         }
     },
     destroyed(){
-        console.log("销毁期");
         this.aa = "1"
     },
     beforeRouteLeave(to, from, next) {
@@ -77,13 +80,10 @@ export default {
         // 销毁父组件
         this.$destroy();
         }
-    next();
-  },
+        next();
+    },
     watch:{
-        aa(newVal){
-            console.log(newVal);
-            this.getNowAddress()
-        }
+
     },
     methods:{
         back(){
@@ -114,11 +114,16 @@ export default {
             console.log(id);
             if(this.$store.state.user.user){
                 let user = localStorage.getItem("user")
-                let result = await axios.post("/web/account/editDefalutAddress",{
+                let result = await axios.put("/web/account/editDefalutAddress",{
                     _id:id,
                     username:user
                 })
             }
+        },
+        xuanzhong(item){
+            console.log(item);
+            // 提交
+            this.$store.commit("user/editSelectAddress",item)
         }
     }
 }

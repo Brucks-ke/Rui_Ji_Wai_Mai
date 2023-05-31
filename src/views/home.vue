@@ -1,13 +1,16 @@
 <template>
   <div>
     <mt-header title="" fixed>
-    <router-link to="/" slot="left">
-        蜗牛外卖
-    </router-link>
-    <div icon="more" slot="right">
-        <router-link to="/login" class="white">登录</router-link>&nbsp; |
-        <router-link to="/reg" class="white">注册</router-link>
-    </div>
+        <div @click="$router.back()" slot="left">
+            <mt-button icon="back"></mt-button>
+        </div>
+        <div icon="more" class="more" slot="right" v-if="!user1">
+            <router-link to="/login" class="white">登录</router-link>&nbsp; |
+            <router-link to="/login" class="white">注册</router-link>
+        </div>
+        <div icon="more" class="more" slot="right" v-else>
+            <router-link to="/login" class="white">{{user1}}</router-link>
+        </div>
     </mt-header>
     
     <div class="container">
@@ -74,10 +77,12 @@ export default {
     async created(){
         let res = await this.$http.get("/web/position/city")
         this.city = res
+        this.user1 = localStorage.getItem("user")
     },
     data(){
         return {
-            city:""
+            city:"",
+            user1:""
         }
     },
     methods:{

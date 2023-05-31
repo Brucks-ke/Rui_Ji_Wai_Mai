@@ -8,7 +8,10 @@ import city from "../views/city.vue"
 import chooseAddress from "../views/child/chooseAddress.vue"
 import remark from "../views/child/remark.vue"
 import ticket from "../views/child/ticket.vue"
+import order from "../views/order.vue"
 import addAddress from "../views/child/addAddress.vue" //添加地址
+import payment from "../views/child/payment.vue" //付款方式
+import orderDetail from "../views/child/orderDetail.vue" //订单详情
 
 const originalPush = VueRouter.prototype.push
 VueRouter.prototype.push = function push(location) {
@@ -52,7 +55,14 @@ const routes = [
   {
     path:"/order",
     name:"订单页",
-    component:()=>import("../views/order.vue")
+    component:order,
+    children:[
+      {
+        path:"orderDetail",
+        name:"订单详情页",
+        component:orderDetail,
+      }
+    ]
   },
   {
     path:"/profile",
@@ -95,6 +105,11 @@ const routes = [
         path:"ticket",
         name:"是否开发票",
         component:ticket
+      },
+      {
+        path:"payment",
+        name:"付款",
+        component:payment
       },
     ]
   },

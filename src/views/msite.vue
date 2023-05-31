@@ -1,14 +1,16 @@
 <template>
   <div class="msite">
     <mt-header :title="$route.query.name" fixed>
-        <router-link :to="{path:'/search',query:{name:$route.query.name}}" slot="left">
-            <mt-button icon="search"></mt-button>
-        </router-link>
-        <div icon="more" class="more" slot="right">
-            <router-link to="/login" class="white">登录</router-link>&nbsp; |
-            <router-link to="/reg" class="white">注册</router-link>
+        <div @click="$router.back()" slot="left">
+            <mt-button icon="back"></mt-button>
         </div>
-
+        <div icon="more" class="more" slot="right" v-if="!user1">
+            <router-link to="/login" class="white">登录</router-link>&nbsp; |
+            <router-link to="/login" class="white">注册</router-link>
+        </div>
+        <div icon="more" class="more" slot="right" v-else>
+            <router-link to="/login" class="white">{{user1}}</router-link>
+        </div>
     </mt-header>
 
 
@@ -109,13 +111,14 @@ export default {
             tab2:"2",
             tab3:"3",
             tab4:"4",
-
+            user1:""
         }
     },
     async created(){
         this.$store.state.nowSelect="1";
         // 发送请求找到当前所有商家
         this.getData(1)
+        this.user1 = localStorage.getItem("user")
     },
     methods:{
         waimai(){

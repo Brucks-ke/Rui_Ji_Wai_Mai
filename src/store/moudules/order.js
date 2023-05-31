@@ -8,7 +8,8 @@ export default {
             shopInfo:{},
             // 已选择的商品
             selectedData:[],
-            remark:[]
+            remark:[],
+            order:{}
         }
     },
     // 提交修改请求在这里面写函数  提交修改
@@ -27,6 +28,12 @@ export default {
         },
         editRemark(state,val){
             state.remark = val
+        },
+        saveThisOrder(state,val){
+            state.order = val
+        },
+        editThisOrder(state,val){
+            state.order.status = val
         }
     },
     // 异步请求在这里面
