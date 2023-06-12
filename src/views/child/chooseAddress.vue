@@ -124,6 +124,8 @@ export default {
             console.log(item);
             // 提交
             this.$store.commit("user/editSelectAddress",item)
+            // 返回上一页
+            this.$router.back()
         }
     }
 }
